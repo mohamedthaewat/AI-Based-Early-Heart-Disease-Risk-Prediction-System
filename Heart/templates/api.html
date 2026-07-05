@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CardioTwin AI — API Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#060d1a;--surface:#0b1627;--surface2:#0f1e35;--border:#1a3352;--accent:#e63946;--teal:#1c7293;--text:#e8f0fe;--muted:#6a8aad;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);padding:20px;}
+.container{max-width:1200px;margin:0 auto;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.logo{font-size:24px;font-weight:700;}
+.api-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:25px;margin-bottom:20px;}
+.api-title{font-size:18px;font-weight:700;color:var(--teal);margin-bottom:15px;}
+.endpoint{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:15px;margin-bottom:15px;}
+.endpoint-method{display:inline-block;padding:4px 12px;border-radius:4px;font-weight:700;font-size:12px;margin-bottom:10px;}
+.endpoint-method.post{background:rgba(26,114,147,.3);color:var(--teal);}
+.endpoint-method.get{background:rgba(46,204,113,.2);color:var(--green);}
+.endpoint-path{font-family:var(--mono);font-size:12px;color:var(--accent);margin-bottom:10px;}
+.endpoint-desc{font-size:13px;color:var(--muted);margin-bottom:10px;}
+.endpoint-details{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:15px;margin-top:10px;}
+.detail-title{font-weight:600;color:var(--text);margin-top:10px;margin-bottom:5px;font-size:12px;}
+.detail-content{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--surface);padding:10px;border-radius:4px;overflow-x:auto;margin-top:5px;}
+code{color:var(--teal);}
+@media(max-width:768px){.container{padding:0;}.endpoint{padding:12px;}}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="logo">❤️ API Documentation</div>
+    <a href="/" style="color:var(--teal);text-decoration:none;">← Back</a>
+  </div>
+
+  <div class="api-section">
+    <div class="api-title">📋 Available Endpoints</div>
+    
+    <div class="endpoint">
+      <div class="endpoint-method post">POST</div>
+      <div class="endpoint-path">/predict</div>
+      <div class="endpoint-desc">Predict CVD risk score based on patient parameters</div>
+      <div class="endpoint-details">
+        <div class="detail-title">Request Body:</div>
+        <div class="detail-content">{
+  age: 54,
+  sex: 1,
+  trestbps: 130,
+  chol: 223,
+  thalch: 140,
+  oldpeak: 0.5,
+  ca: 0,
+  cp: 0,
+  thal: 3,
+  exang: 0,
+  fbs: 0,
+  restecg: 1,
+  slope: 2
+}</div>
+        <div class="detail-title">Response:</div>
+        <div class="detail-content">{
+  risk: 45.3,
+  level: "Moderate Risk",
+  color: "orange",
+  features: [...]
+}</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-method post">POST</div>
+      <div class="endpoint-path">/chatbot</div>
+      <div class="endpoint-desc">Chat with AI assistant about cardiovascular health</div>
+      <div class="endpoint-details">
+        <div class="detail-title">Request Body:</div>
+        <div class="detail-content">{
+  message: "Why is my risk high?",
+  patient: { /* patient parameters */ }
+}</div>
+        <div class="detail-title">Response:</div>
+        <div class="detail-content">{ reply: "Your risk is high due to..." }</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-method post">POST</div>
+      <div class="endpoint-path">/simulate</div>
+      <div class="endpoint-desc">Simulate lifestyle changes and see risk reduction</div>
+      <div class="endpoint-details">
+        <div class="detail-title">Request Body:</div>
+        <div class="detail-content">{
+  scenario: "bp",  /* 'bp', 'chol', 'active', 'oldpeak' */
+  age: 54,
+  ...other_params
+}</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-method get">GET</div>
+      <div class="endpoint-path">/api/dashboard</div>
+      <div class="endpoint-desc">Get dashboard statistics and analytics</div>
+      <div class="endpoint-details">
+        <div class="detail-title">Response:</div>
+        <div class="detail-content">{
+  total_patients: 42,
+  high_risk_count: 8,
+  avg_risk_score: 43.2,
+  model_accuracy: 84.5,
+  top_factors: [...]
+}</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-method get">GET</div>
+      <div class="endpoint-path">/api/model-performance</div>
+      <div class="endpoint-desc">Get model performance metrics and feature importance</div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-method post">POST</div>
+      <div class="endpoint-path">/api/recommendations</div>
+      <div class="endpoint-desc">Get personalized health recommendations</div>
+      <div class="endpoint-details">
+        <div class="detail-title">Response Includes:</div>
+        <div class="detail-content">lifestyle, diet, medication, monitoring recommendations</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-method get">GET</div>
+      <div class="endpoint-path">/get_patients</div>
+      <div class="endpoint-desc">Get list of all patients (with optional search)</div>
+      <div class="endpoint-details">
+        <div class="detail-title">Query Parameters:</div>
+        <div class="detail-content">search: "patient name" (optional)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="api-section">
+    <div class="api-title">🔐 Authentication</div>
+    <div style="color:var(--muted);line-height:1.8;">
+      All protected endpoints require login.<br>
+      Session is maintained via Flask session cookies.<br>
+      Admin account: <code>admin</code> / <code>admin123</code>
+    </div>
+  </div>
+
+  <div class="api-section">
+    <div class="api-title">🚀 Getting Started</div>
+    <div style="color:var(--muted);line-height:1.8;">
+      1. Login to the application<br>
+      2. Use any API endpoint (POST/GET)<br>
+      3. Include patient data in request body<br>
+      4. Receive JSON response with predictions and analytics
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

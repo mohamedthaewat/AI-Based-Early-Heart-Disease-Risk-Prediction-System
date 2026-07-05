@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CardioTwin AI — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060d1a;--surface:#0b1627;--surface2:#0f1e35;
+  --border:#1a3352;--accent:#e63946;--teal:#1c7293;
+  --green:#2ecc71;--text:#e8f0fe;--muted:#6a8aad;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:50px 50px;opacity:.2;pointer-events:none;}
+.orb1{position:fixed;top:-80px;right:-80px;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(28,114,147,.1) 0%,transparent 70%);pointer-events:none;}
+.orb2{position:fixed;bottom:-80px;left:-80px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(230,57,70,.07) 0%,transparent 70%);pointer-events:none;}
+
+.card{position:relative;z-index:1;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:420px;box-shadow:0 24px 60px rgba(0,0,0,.4);}
+
+.logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px;}
+.logo-icon{width:44px;height:44px;border-radius:13px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 25px rgba(230,57,70,.35);animation:hb 1.8s ease-in-out infinite;}
+@keyframes hb{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.logo-name{font-size:22px;font-weight:800;letter-spacing:-.5px;}
+.logo-name span{color:var(--accent);}
+.tagline{text-align:center;font-size:12px;color:var(--muted);margin-bottom:28px;}
+
+/* Tabs */
+.tabs{display:flex;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:24px;}
+.tab{flex:1;text-align:center;padding:8px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--muted);}
+.tab.active{background:var(--teal);color:#fff;}
+
+/* Form */
+.form{display:flex;flex-direction:column;gap:14px;}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;}
+.field input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-size:14px;font-family:var(--font);transition:border .2s;}
+.field input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(28,114,147,.1);}
+.field input::placeholder{color:var(--muted);}
+
+.btn-submit{width:100%;background:var(--accent);border:none;color:#fff;padding:13px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:var(--font);box-shadow:0 4px 16px rgba(230,57,70,.25);}
+.btn-submit:hover{background:#c0303b;transform:translateY(-1px);}
+.btn-submit:disabled{background:var(--border);cursor:not-allowed;transform:none;box-shadow:none;}
+
+.msg{padding:10px 14px;border-radius:8px;font-size:13px;text-align:center;display:none;}
+.msg.error{background:#1a0707;border:1px solid #4d1515;color:var(--accent);}
+.msg.success{background:#071a10;border:1px solid #1a4d2e;color:var(--green);}
+.msg.show{display:block;}
+
+.hint{text-align:center;font-size:11px;color:var(--muted);margin-top:16px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);}
+.hint b{color:var(--teal);}
+</style>
+</head>
+<body>
+<div class="orb1"></div>
+<div class="orb2"></div>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">❤</div>
+    <div class="logo-name">Cardio<span>Twin</span> AI</div>
+  </div>
+  <p class="tagline">Heart Disease Risk Assessment Platform</p>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-login"  onclick="switchTab('login')">Sign In</div>
+    <div class="tab"        id="tab-register" onclick="switchTab('register')">Register</div>
+  </div>
+
+  <!-- Login Form -->
+  <div id="form-login">
+    <div class="form">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="l-user" placeholder="Enter your username" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="l-pass" placeholder="Enter your password" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="msg" id="login-msg"></div>
+      <button class="btn-submit" id="login-btn" onclick="doLogin()">Sign In →</button>
+    </div>
+    <div class="hint">Default admin: <b>admin</b> / <b>admin123</b></div>
+  </div>
+
+  <!-- Register Form -->
+  <div id="form-register" style="display:none;">
+    <div class="form">
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="r-name" placeholder="Dr. John Smith">
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="r-user" placeholder="Choose a username" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Password (min 6 chars)</label>
+        <input type="password" id="r-pass" placeholder="Choose a password" autocomplete="new-password"
+          onkeydown="if(event.key==='Enter')doRegister()">
+      </div>
+      <div class="msg" id="register-msg"></div>
+      <button class="btn-submit" id="register-btn" onclick="doRegister()">Create Account →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(t){
+  document.getElementById('tab-login').classList.toggle('active',t==='login');
+  document.getElementById('tab-register').classList.toggle('active',t==='register');
+  document.getElementById('form-login').style.display=t==='login'?'block':'none';
+  document.getElementById('form-register').style.display=t==='register'?'block':'none';
+}
+
+function showMsg(id,text,type){
+  const el=document.getElementById(id);
+  el.textContent=text; el.className=`msg ${type} show`;
+  if(type==='success') setTimeout(()=>el.classList.remove('show'),4000);
+}
+
+async function doLogin(){
+  const u=document.getElementById('l-user').value.trim();
+  const p=document.getElementById('l-pass').value;
+  if(!u||!p){showMsg('login-msg','Please enter username and password','error');return;}
+  const btn=document.getElementById('login-btn');
+  btn.disabled=true; btn.textContent='Signing in...';
+  const res=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+  const d=await res.json();
+  if(d.success){ window.location.href=d.redirect; }
+  else{ showMsg('login-msg',d.message,'error'); btn.disabled=false; btn.textContent='Sign In →'; }
+}
+
+async function doRegister(){
+  const n=document.getElementById('r-name').value.trim();
+  const u=document.getElementById('r-user').value.trim();
+  const p=document.getElementById('r-pass').value;
+  if(!u||!p){showMsg('register-msg','Username and password are required','error');return;}
+  const btn=document.getElementById('register-btn');
+  btn.disabled=true; btn.textContent='Creating account...';
+  const res=await fetch('/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p,full_name:n})});
+  const d=await res.json();
+  if(d.success){ showMsg('register-msg',d.message+' You can now sign in.','success'); setTimeout(()=>switchTab('login'),2000); }
+  else{ showMsg('register-msg',d.message,'error'); }
+  btn.disabled=false; btn.textContent='Create Account →';
+}
+</script>
+</body>
+</html>

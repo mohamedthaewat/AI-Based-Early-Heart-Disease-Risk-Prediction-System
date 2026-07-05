@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CardioTwin AI — Medical Chatbot</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060d1a;--surface:#0b1627;--surface2:#0f1e35;
+  --border:#1a3352;--accent:#e63946;--teal:#1c7293;--teal2:#1a6585;
+  --green:#2ecc71;--orange:#f39c12;--red:#e74c3c;
+  --text:#e8f0fe;--muted:#6a8aad;--muted2:#4a6a8d;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:32px;height:32px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 14px rgba(230,57,70,.3);animation:hb 1.8s ease-in-out infinite;}
+@keyframes hb{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.logo-name{font-size:17px;font-weight:700;letter-spacing:-.4px;}
+.logo-name span{color:var(--accent);}
+.header-right{display:flex;align-items:center;gap:10px;}
+.ai-badge{background:rgba(28,114,147,.15);border:1px solid rgba(28,114,147,.3);color:var(--teal);font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px;}
+.back-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:7px;font-size:12px;cursor:pointer;text-decoration:none;transition:all .2s;}
+.back-btn:hover{background:var(--teal);color:#fff;border-color:var(--teal);}
+.body{display:grid;grid-template-columns:280px 1fr;flex:1;overflow:hidden;}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;}
+.sec-label{font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field-header{display:flex;justify-content:space-between;}
+.field-lbl{font-size:11px;color:var(--muted);}
+.field-val{font-size:11px;color:var(--text);font-weight:600;font-family:var(--mono);background:var(--surface2);padding:2px 7px;border-radius:4px;border:1px solid var(--border);}
+input[type=range]{width:100%;height:3px;accent-color:var(--teal);cursor:pointer;-webkit-appearance:none;background:var(--border);border-radius:2px;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--teal);cursor:pointer;}
+select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 9px;border-radius:7px;font-size:11px;font-family:var(--font);appearance:none;}
+.risk-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.risk-num{font-size:34px;font-weight:700;font-family:var(--mono);line-height:1;}
+.risk-lbl{font-size:11px;color:var(--muted);margin-top:4px;}
+.risk-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:10px;}
+.risk-bar{height:100%;border-radius:2px;transition:width .6s ease,background .4s ease;}
+.chat-wrap{display:flex;flex-direction:column;height:100%;overflow:hidden;}
+.messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth;}
+.messages::-webkit-scrollbar{width:4px;}
+.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.msg{display:flex;gap:10px;max-width:82%;animation:fadeUp .25s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end;flex-direction:row-reverse;}
+.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px;}
+.msg.bot .avatar{background:var(--teal);}
+.msg.user .avatar{background:var(--accent);}
+.bubble{background:var(--surface);border:1px solid var(--border);border-radius:14px;border-bottom-left-radius:4px;padding:11px 15px;font-size:13px;line-height:1.7;}
+.msg.user .bubble{background:var(--teal);border-color:var(--teal);border-bottom-left-radius:14px;border-bottom-right-radius:4px;}
+.bubble b{color:var(--text);font-weight:600;}
+.bubble .highlight{background:rgba(28,114,147,.2);border-left:3px solid var(--teal);padding:8px 12px;border-radius:0 8px 8px 0;margin:8px 0;font-size:12px;}
+.typing-bubble{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;display:flex;gap:5px;align-items:center;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bounce 1.2s infinite;}
+.dot:nth-child(2){animation-delay:.2s;}
+.dot:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-7px)}}
+.quick-area{padding:0 20px 10px;display:flex;flex-wrap:wrap;gap:7px;}
+.quick-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:6px 13px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .2s;font-family:var(--font);}
+.quick-btn:hover{background:var(--teal);border-color:var(--teal);color:#fff;}
+.input-row{padding:14px 20px;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;}
+.input-box{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:13px;resize:none;height:44px;max-height:120px;font-family:var(--font);transition:border .2s;overflow:hidden;}
+.input-box:focus{outline:none;border-color:var(--teal);}
+.send-btn{background:var(--teal);border:none;color:#fff;width:44px;height:44px;border-radius:10px;font-size:18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.send-btn:hover{background:var(--teal2);}
+.send-btn:disabled{background:var(--border);cursor:not-allowed;}
+@media(max-width:700px){.body{grid-template-columns:1fr;}.sidebar{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">❤</div>
+    <span class="logo-name">Cardio<span>Twin</span> AI — Medical Chatbot</span>
+  </div>
+  <div class="header-right">
+    <span class="ai-badge">🤖 Groq AI</span>
+    <a href="/" class="back-btn">← Back</a>
+  </div>
+</div>
+
+<div class="body">
+  <div class="sidebar">
+    <div class="sec-label">Patient Parameters</div>
+    <div class="field">
+      <div class="field-header"><span class="field-lbl">Age</span><span class="field-val" id="v-age">54</span></div>
+      <input type="range" id="age" min="25" max="80" value="54" oninput="updV('age','v-age',0)">
+    </div>
+    <div class="field">
+      <span class="field-lbl" style="margin-bottom:3px;display:block;">Sex</span>
+      <select id="sex" onchange="updateRisk()"><option value="1">Male</option><option value="0">Female</option></select>
+    </div>
+    <div class="field">
+      <div class="field-header"><span class="field-lbl">Blood Pressure</span><span class="field-val" id="v-bp">130</span></div>
+      <input type="range" id="trestbps" min="90" max="200" value="130" oninput="updV('trestbps','v-bp',0)">
+    </div>
+    <div class="field">
+      <div class="field-header"><span class="field-lbl">Cholesterol</span><span class="field-val" id="v-chol">223</span></div>
+      <input type="range" id="chol" min="120" max="400" value="223" oninput="updV('chol','v-chol',0)">
+    </div>
+    <div class="field">
+      <div class="field-header"><span class="field-lbl">Max Heart Rate</span><span class="field-val" id="v-hr">140</span></div>
+      <input type="range" id="thalch" min="70" max="200" value="140" oninput="updV('thalch','v-hr',0)">
+    </div>
+    <div class="field">
+      <div class="field-header"><span class="field-lbl">ST Depression</span><span class="field-val" id="v-op">0.5</span></div>
+      <input type="range" id="oldpeak" min="0" max="6" value="0.5" step="0.1" oninput="updV('oldpeak','v-op',1)">
+    </div>
+    <div class="field">
+      <div class="field-header"><span class="field-lbl">Major Vessels</span><span class="field-val" id="v-ca">0</span></div>
+      <input type="range" id="ca" min="0" max="3" value="0" oninput="updV('ca','v-ca',0)">
+    </div>
+    <div class="field">
+      <span class="field-lbl" style="margin-bottom:3px;display:block;">Thalassemia</span>
+      <select id="thal" onchange="updateRisk()"><option value="3">Normal</option><option value="1">Fixed Defect</option><option value="2">Reversable Defect</option></select>
+    </div>
+    <div class="field">
+      <span class="field-lbl" style="margin-bottom:3px;display:block;">Exercise Angina</span>
+      <select id="exang" onchange="updateRisk()"><option value="0">No</option><option value="1">Yes</option></select>
+    </div>
+    <div class="field">
+      <span class="field-lbl" style="margin-bottom:3px;display:block;">Chest Pain Type</span>
+      <select id="cp" onchange="updateRisk()"><option value="0">Typical</option><option value="1">Atypical</option><option value="2">Non-anginal</option><option value="3">Asymptomatic</option></select>
+    </div>
+    <div class="field">
+      <span class="field-lbl" style="margin-bottom:3px;display:block;">Rest ECG</span>
+      <select id="restecg" onchange="updateRisk()"><option value="1">Normal</option><option value="0">LV Hypertrophy</option><option value="2">ST-T Abnormal</option></select>
+    </div>
+    <div class="field">
+      <span class="field-lbl" style="margin-bottom:3px;display:block;">ST Slope</span>
+      <select id="slope" onchange="updateRisk()"><option value="2">Upsloping</option><option value="1">Flat</option><option value="0">Downsloping</option></select>
+    </div>
+    <div class="field">
+      <span class="field-lbl" style="margin-bottom:3px;display:block;">Fasting Blood Sugar</span>
+      <select id="fbs" onchange="updateRisk()"><option value="0">&lt;120 mg/dl</option><option value="1">&gt;120 mg/dl</option></select>
+    </div>
+    <div class="risk-box">
+      <div class="risk-num" id="risk-display" style="color:var(--green);">--<span style="font-size:15px;">%</span></div>
+      <div class="risk-lbl" id="risk-level">CVD Risk Score</div>
+      <div class="risk-bar-bg"><div class="risk-bar" id="risk-bar" style="width:0%;background:var(--green);"></div></div>
+    </div>
+  </div>
+
+  <div class="chat-wrap">
+    <div class="messages" id="messages">
+      <div class="msg bot">
+        <div class="avatar">🤖</div>
+        <div class="bubble">
+          Hello! I'm your <b>CardioTwin AI</b> assistant, powered by Groq AI. 🫀<br><br>
+          I can answer questions about cardiovascular health based on the patient data on the left. Adjust the parameters and ask me anything!<br><br>
+          <div class="highlight">💡 Try: "Why is my risk high?" or "What lifestyle changes can help me?"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-area">
+      <button class="quick-btn" onclick="sendQ('Why is my risk high?')">Why is my risk high?</button>
+      <button class="quick-btn" onclick="sendQ('How can I reduce my CVD risk?')">How to reduce risk?</button>
+      <button class="quick-btn" onclick="sendQ('Is my blood pressure dangerous?')">Is my BP dangerous?</button>
+      <button class="quick-btn" onclick="sendQ('What does my cholesterol level mean?')">What does cholesterol mean?</button>
+      <button class="quick-btn" onclick="sendQ('Should I see a doctor urgently?')">Should I see a doctor?</button>
+      <button class="quick-btn" onclick="sendQ('What exercises are safe for me?')">Safe exercises?</button>
+    </div>
+
+    <div class="input-row">
+      <textarea class="input-box" id="chat-input" placeholder="Ask a medical question..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"
+        oninput="this.style.height='44px';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function getP(){
+  return{age:+document.getElementById('age').value,sex:+document.getElementById('sex').value,dataset:1,cp:0,fbs:0,restecg:1,slope:2,trestbps:+document.getElementById('trestbps').value,chol:+document.getElementById('chol').value,thalch:+document.getElementById('thalch').value,oldpeak:parseFloat(document.getElementById('oldpeak').value),ca:+document.getElementById('ca').value,thal:+document.getElementById('thal').value,exang:+document.getElementById('exang').value};
+}
+function updV(id,lbl,dec){document.getElementById(lbl).textContent=parseFloat(document.getElementById(id).value).toFixed(dec);updateRisk();}
+async function updateRisk(){
+  const res=await fetch('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(getP())});
+  const d=await res.json();
+  const c=d.color==='green'?'var(--green)':d.color==='orange'?'var(--orange)':'var(--red)';
+  document.getElementById('risk-display').innerHTML=`${d.risk}<span style="font-size:15px;">%</span>`;
+  document.getElementById('risk-display').style.color=c;
+  document.getElementById('risk-level').textContent=d.level;
+  document.getElementById('risk-bar').style.cssText=`width:${d.risk}%;background:${c};`;
+}
+function addMsg(html,role){
+  const msgs=document.getElementById('messages');
+  const div=document.createElement('div');div.className=`msg ${role}`;
+  div.innerHTML=`<div class="avatar">${role==='bot'?'🤖':'👤'}</div><div class="bubble">${html}</div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function addTyping(){
+  const msgs=document.getElementById('messages');
+  const div=document.createElement('div');div.className='msg bot';div.id='typing';
+  div.innerHTML='<div class="avatar">🤖</div><div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function removeTyping(){const el=document.getElementById('typing');if(el)el.remove();}
+function fmt(t){return t.replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/^- (.+)/gm,'• $1').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');}
+async function sendMsg(){
+  const input=document.getElementById('chat-input');
+  const msg=input.value.trim();if(!msg)return;
+  input.value='';input.style.height='44px';
+  addMsg(msg,'user');
+  const btn=document.getElementById('send-btn');btn.disabled=true;
+  const msgs=document.getElementById('messages');
+  const loadingDiv=document.createElement('div');loadingDiv.className='msg bot';loadingDiv.id='loading-msg';
+  loadingDiv.innerHTML='<div class="avatar">🤖</div><div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  msgs.appendChild(loadingDiv);msgs.scrollTop=msgs.scrollHeight;
+  
+  try{
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
+    const res=await fetch('/chatbot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,patient:getP()}),signal:controller.signal});
+    clearTimeout(timeoutId);
+    const d=await res.json();
+    document.getElementById('loading-msg')?.remove();
+    addMsg(fmt(d.reply),'bot');
+  }catch(e){
+    document.getElementById('loading-msg')?.remove();
+    if(e.name==='AbortError'){
+      addMsg('⏱️ Request timeout. Server is slow. Please try again.','bot');
+    }else{
+      addMsg('⚠️ Connection error: ' + e.message,'bot');
+    }
+  }
+  btn.disabled=false;document.getElementById('chat-input').focus();
+}
+function sendQ(msg){document.getElementById('chat-input').value=msg;sendMsg();}
+updateRisk();
+</script>
+</body>
+</html>

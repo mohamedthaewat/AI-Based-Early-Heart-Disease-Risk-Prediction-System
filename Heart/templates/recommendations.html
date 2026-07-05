@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CardioTwin AI — Personalized Recommendations</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060d1a;--surface:#0b1627;--surface2:#0f1e35;--border:#1a3352;
+  --accent:#e63946;--teal:#1c7293;--green:#2ecc71;--orange:#f39c12;--red:#e74c3c;
+  --text:#e8f0fe;--muted:#6a8aad;--font:'DM Sans',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:20px;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.logo{font-size:24px;font-weight:700;}
+.nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:8px;cursor:pointer;text-decoration:none;transition:all .2s;}
+.nav-btn:hover{background:var(--teal);color:#fff;}
+.container{max-width:1000px;margin:0 auto;}
+.risk-banner{background:var(--surface);border:2px solid;border-radius:10px;padding:30px;margin-bottom:30px;text-align:center;}
+.risk-banner.low{border-color:var(--green);}
+.risk-banner.moderate{border-color:var(--orange);}
+.risk-banner.high{border-color:var(--red);}
+.risk-title{font-size:28px;font-weight:700;margin-bottom:10px;}
+.risk-desc{color:var(--muted);font-size:14px;}
+.rec-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:25px;margin-bottom:20px;}
+.rec-section-title{font-size:16px;font-weight:700;margin-bottom:15px;display:flex;align-items:center;gap:10px;}
+.rec-item{display:flex;gap:15px;padding:15px;background:var(--surface2);border-radius:8px;margin-bottom:10px;border-left:4px solid var(--teal);}
+.rec-item-icon{font-size:24px;min-width:40px;}
+.rec-item-text{flex:1;}
+.rec-item-title{font-weight:600;margin-bottom:5px;color:var(--text);}
+.rec-item-desc{font-size:12px;color:var(--muted);}
+.btn-group{display:flex;gap:10px;margin-top:20px;}
+.btn{background:var(--teal);border:none;color:white;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s;}
+.btn:hover{background:#1a6c85;transform:translateY(-2px);}
+@media(max-width:768px){
+  .container{padding:0;}
+  .rec-item{flex-direction:column;}
+  .btn-group{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">❤️ Personalized Recommendations</div>
+  <a href="/" class="nav-btn">← Back</a>
+</div>
+
+<div class="container">
+  <div class="risk-banner" id="risk-banner">
+    <div class="risk-title" id="risk-title">Your Risk Level</div>
+    <div class="risk-desc" id="risk-desc">Loading your personalized recommendations...</div>
+  </div>
+
+  <div class="rec-section">
+    <div class="rec-section-title">🏥 Medical Recommendations</div>
+    <div id="medical"></div>
+  </div>
+
+  <div class="rec-section">
+    <div class="rec-section-title">🥗 Diet & Nutrition</div>
+    <div id="diet"></div>
+  </div>
+
+  <div class="rec-section">
+    <div class="rec-section-title">💪 Lifestyle & Exercise</div>
+    <div id="lifestyle"></div>
+  </div>
+
+  <div class="rec-section">
+    <div class="rec-section-title">💊 Medication</div>
+    <div id="medication"></div>
+  </div>
+
+  <div class="rec-section">
+    <div class="rec-section-title">📊 Monitoring</div>
+    <div id="monitoring"></div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-pdf" onclick="downloadPDF()">📥 Download PDF Report</button>
+    <button class="btn btn-share" onclick="shareWithDoctor()">📋 Share with Doctor</button>
+  </div>
+</div>
+
+<script>
+let currentRecs = null;
+
+function getP(){
+  return{age:+(localStorage.getItem('age')||50),sex:+(localStorage.getItem('sex')||1),dataset:1,cp:+(localStorage.getItem('cp')||0),fbs:+(localStorage.getItem('fbs')||0),restecg:+(localStorage.getItem('restecg')||1),slope:+(localStorage.getItem('slope')||2),trestbps:+(localStorage.getItem('trestbps')||130),chol:+(localStorage.getItem('chol')||223),thalch:+(localStorage.getItem('thalch')||140),oldpeak:+(localStorage.getItem('oldpeak')||0.5),ca:+(localStorage.getItem('ca')||0),thal:+(localStorage.getItem('thal')||3),exang:+(localStorage.getItem('exang')||0)};
+}
+
+function makeItems(arr, icon, label){
+  return arr.map(x=>`<div class="rec-item"><div class="rec-item-icon">${icon}</div><div class="rec-item-text"><div class="rec-item-title">${label}</div><div class="rec-item-desc">${x}</div></div></div>`).join('');
+}
+
+async function loadRecs(){
+  try{
+    const res=await fetch('/api/recommendations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(getP())});
+    currentRecs=await res.json();
+    const banner=document.getElementById('risk-banner');
+    banner.className='risk-banner '+currentRecs.color;
+    document.getElementById('risk-title').textContent=currentRecs.level;
+    document.getElementById('risk-desc').textContent='Based on your clinical data — always consult a qualified healthcare provider.';
+    document.getElementById('medical').innerHTML=makeItems(currentRecs.medication,'💉','Action');
+    document.getElementById('diet').innerHTML=makeItems(currentRecs.diet,'🍎','Dietary');
+    document.getElementById('lifestyle').innerHTML=makeItems(currentRecs.lifestyle,'🚴','Activity');
+    document.getElementById('medication').innerHTML=makeItems(currentRecs.medication,'💊','Medical');
+    document.getElementById('monitoring').innerHTML=makeItems(currentRecs.monitoring,'📈','Track');
+  }catch(e){console.error('Error:',e);}
+}
+
+async function downloadPDF(){
+  const btn=document.querySelector('.btn-pdf');
+  btn.textContent='⏳ Generating...';
+  btn.disabled=true;
+  try{
+    const p=getP();
+    p.patient_name=localStorage.getItem('patient_name')||'Patient';
+    const res=await fetch('/report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
+    if(!res.ok){btn.textContent='❌ Error';btn.disabled=false;return;}
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='CardioTwin_Report.pdf';a.click();
+    URL.revokeObjectURL(url);
+    btn.textContent='✅ Downloaded!';
+    setTimeout(()=>{btn.textContent='📥 Download PDF Report';btn.disabled=false;},2000);
+  }catch(e){btn.textContent='❌ Error';btn.disabled=false;}
+}
+
+async function shareWithDoctor(){
+  const btn=document.querySelector('.btn-share');
+  if(!currentRecs){btn.textContent='⏳ Loading...';return;}
+  const p=getP();
+  const sexLabel=p.sex===1?'Male':'Female';
+  const text=
+`CardioTwin AI — Patient Summary
+================================
+Risk Level : ${currentRecs.level}
+Age        : ${p.age} yrs  |  Sex: ${sexLabel}
+BP         : ${p.trestbps} mmHg  |  Cholesterol: ${p.chol} mg/dL
+Max HR     : ${p.thalch} bpm  |  ST Depression: ${p.oldpeak}
+
+Key Recommendations:
+${currentRecs.lifestyle.map(x=>'• '+x).join('\n')}
+${currentRecs.diet.map(x=>'• '+x).join('\n')}
+${currentRecs.monitoring.map(x=>'• '+x).join('\n')}
+
+Generated by CardioTwin AI — For educational purposes only.`;
+  try{
+    await navigator.clipboard.writeText(text);
+    btn.textContent='✅ Copied!';
+    setTimeout(()=>{btn.textContent='📋 Share with Doctor';},2000);
+  }catch(e){
+    // fallback for older browsers
+    const ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    btn.textContent='✅ Copied!';
+    setTimeout(()=>{btn.textContent='📋 Share with Doctor';},2000);
+  }
+}
+
+loadRecs();
+</script>
+
+</body>
+</html>

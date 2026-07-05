@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CardioTwin AI — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060d1a;--surface:#0b1627;--surface2:#0f1e35;--border:#1a3352;
+  --accent:#e63946;--teal:#1c7293;--green:#2ecc71;--orange:#f39c12;--red:#e74c3c;
+  --text:#e8f0fe;--muted:#6a8aad;--font:'DM Sans',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);padding:20px;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.logo{font-size:24px;font-weight:700;color:var(--text);}
+.nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:8px;cursor:pointer;text-decoration:none;transition:all .2s;}
+.nav-btn:hover{background:var(--teal);color:#fff;border-color:var(--teal);}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:30px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
+.card-title{font-size:14px;color:var(--muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;}
+.card-value{font-size:28px;font-weight:700;margin-bottom:5px;}
+.card-desc{font-size:12px;color:var(--muted);}
+.metric{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.metric:last-child{border:none;}
+.metric-label{color:var(--muted);font-size:12px;}
+.metric-value{font-weight:600;font-size:14px;}
+.chart-container{position:relative;height:300px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:20px;}
+.stat-box{background:var(--surface2);border:1px solid var(--border);padding:15px;border-radius:8px;text-align:center;}
+.stat-label{font-size:11px;color:var(--muted);margin-bottom:5px;}
+.stat-value{font-size:20px;font-weight:700;color:var(--teal);}
+@media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr);}.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">❤️ CardioTwin AI — Dashboard</div>
+  <div>
+    <a href="/" class="nav-btn">← Back</a>
+    <a href="/logout" class="nav-btn" style="margin-left:10px;">Logout</a>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-box">
+    <div class="stat-label">Total Patients</div>
+    <div class="stat-value" id="total-patients">0</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">High Risk</div>
+    <div class="stat-value" id="high-risk">0</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Avg Risk Score</div>
+    <div class="stat-value" id="avg-risk">0%</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Model Accuracy</div>
+    <div class="stat-value" id="model-accuracy">0%</div>
+  </div>
+</div>
+
+<div class="chart-container">
+  <canvas id="riskChart"></canvas>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Risk Distribution</div>
+    <div class="metric">
+      <span class="metric-label">Low Risk (&lt;30%)</span>
+      <span class="metric-value" id="low-count">0</span>
+    </div>
+    <div class="metric">
+      <span class="metric-label">Moderate Risk (30-60%)</span>
+      <span class="metric-value" id="mod-count">0</span>
+    </div>
+    <div class="metric">
+      <span class="metric-label">High Risk (&gt;60%)</span>
+      <span class="metric-value" id="high-count">0</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Top Risk Factors</div>
+    <div id="top-factors"></div>
+  </div>
+</div>
+
+<script>
+async function loadDashboard(){
+  try{
+    const res=await fetch('/api/dashboard');
+    const data=await res.json();
+    
+    document.getElementById('total-patients').textContent=data.total_patients;
+    document.getElementById('high-risk').textContent=data.high_risk_count;
+    document.getElementById('avg-risk').textContent=(data.avg_risk_score||0).toFixed(1)+'%';
+    document.getElementById('model-accuracy').textContent=(data.model_accuracy||0).toFixed(1)+'%';
+    
+    document.getElementById('low-count').textContent=data.low_risk_count;
+    document.getElementById('mod-count').textContent=data.moderate_risk_count;
+    document.getElementById('high-count').textContent=data.high_risk_count;
+    
+    const factorsHTML=data.top_factors.map(f=>`
+      <div class="metric">
+        <span class="metric-label">${f.name}</span>
+        <span class="metric-value">${(f.importance).toFixed(1)}%</span>
+      </div>
+    `).join('');
+    document.getElementById('top-factors').innerHTML=factorsHTML;
+    
+    // Chart
+    const ctx=document.getElementById('riskChart').getContext('2d');
+    new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:['Low Risk','Moderate Risk','High Risk'],
+        datasets:[{
+          label:'Patient Count',
+          data:[data.low_risk_count,data.moderate_risk_count,data.high_risk_count],
+          backgroundColor:['var(--green)','var(--orange)','var(--red)'],
+          borderColor:['var(--green)','var(--orange)','var(--red)'],
+          borderWidth:1
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'var(--text)'}}},
+        scales:{
+          y:{ticks:{color:'var(--muted)'},grid:{color:'var(--border)'}},
+          x:{ticks:{color:'var(--muted)'},grid:{color:'var(--border)'}}
+        }
+      }
+    });
+  }catch(e){console.error('Dashboard error:',e);}
+}
+loadDashboard();
+setInterval(loadDashboard,30000);
+</script>
+
+</body>
+</html>
